@@ -7,6 +7,12 @@ target_link_libraries(example
   vtkMapCore
   ${CURL_LIBRARIES})
 
+add_executable(exampleBing
+  exampleBing.cxx)
+target_link_libraries(exampleBing
+  vtkMapCore
+  ${CURL_LIBRARIES})
+
 add_executable(exampleLayers
   exampleLayers.cxx)
 target_link_libraries(exampleLayers

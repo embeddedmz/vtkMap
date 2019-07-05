@@ -13,8 +13,10 @@ set(vtkMapCore_SOURCE
     vtkMapPointSelection.cxx
     vtkMapTile.cxx
     vtkMap.cxx
+    vtkMultiThreadedBingLayer.cxx
     vtkMultiThreadedOsmLayer.cxx
     vtkLayer.cxx
+    vtkBingLayer.cxx
     vtkOsmLayer.cxx
     vtkPolydataFeature.cxx
     vtkRasterFeature.cxx
@@ -36,7 +38,9 @@ set (vtkMapCore_HEADERS
     vtkMap_typedef.h
     vtkMercator.h
     vtkLayer.h
+    vtkMultiThreadedBingLayer.h
     vtkMultiThreadedOsmLayer.h
+    vtkBingLayer.h
     vtkOsmLayer.h
     vtkPolydataFeature.h
     vtkRasterFeature.h

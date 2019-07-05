@@ -18,6 +18,7 @@
 #include "vtkGeoMapSelection.h"
 #include "vtkMap.h"
 #include "vtkMapMarkerSet.h"
+#include "vtkBingLayer.h"
 #include "vtkOsmLayer.h"
 #include <QVTKWidget.h>
 #include <vtkCallbackCommand.h>
@@ -124,7 +125,7 @@ protected:
 };
 
 // ------------------------------------------------------------
-qtWeatherStations::qtWeatherStations(QWidget* parent)
+qtWeatherStations::qtWeatherStations(QWidget* parent, const MapTileProvider provider)
   : QMainWindow(parent)
 {
   // Initialize Qt UI (generated from .ui file)
@@ -146,8 +147,16 @@ qtWeatherStations::qtWeatherStations(QWidget* parent)
   this->Renderer = vtkRenderer::New();
   this->Map->SetRenderer(this->Renderer);
 
-  vtkNew<vtkOsmLayer> osmLayer;
-  this->Map->AddLayer(osmLayer.GetPointer());
+  if (provider == OpenStreetMap)
+  {
+    vtkNew<vtkOsmLayer> osmLayer;
+    this->Map->AddLayer(osmLayer.GetPointer());
+  }
+  else
+  {
+      vtkNew<vtkBingLayer> bingLayer;
+      this->Map->AddLayer(bingLayer.GetPointer());
+  }
   //this->resetMapCoords();
   //this->Map->SetCenter(32.2, -90.9);  // approx ERDC coords
   double centerLatLon[2] = { 42.849604, -73.758345 }; // KHQ coords

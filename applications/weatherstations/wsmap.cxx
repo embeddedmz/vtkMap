@@ -19,13 +19,24 @@
 #include "qtWeatherStations.h"
 #include <iostream>
 #include <qapplication.h>
+#include <QCommandLineParser>
 
 int main(int argc, char* argv[])
 {
   //std::cout << "Hello from wsmap" << std::endl;
 
   QApplication app(argc, argv);
-  qtWeatherStations win;
+
+  QCommandLineParser parser;
+  QCommandLineOption p_opt({"p","provider"}, "Map tile provider ('osm' or 'bing')", "provider");
+  parser.addHelpOption();
+  parser.addOption(p_opt);
+  parser.process(QCoreApplication::arguments());
+
+  QString mapTileProvider = parser.value("provider");
+
+  qtWeatherStations win(nullptr, (mapTileProvider == "bing") ? qtWeatherStations::Bing :
+                                                               qtWeatherStations::OpenStreetMap);
   win.show();
   win.resize(1000, 800);
   win.drawMap();

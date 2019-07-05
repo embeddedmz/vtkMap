@@ -39,7 +39,13 @@ class qtWeatherStations : public QMainWindow
 {
   Q_OBJECT
 public:
-  qtWeatherStations(QWidget* parent = 0);
+  enum MapTileProvider
+  {
+      OpenStreetMap,
+      Bing
+  };
+
+  qtWeatherStations(QWidget* parent = nullptr, const MapTileProvider provider = OpenStreetMap);
   ~qtWeatherStations() override;
 
   void drawMap();
