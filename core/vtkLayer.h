@@ -92,6 +92,7 @@ public:
   void AddActor(vtkProp* prop);
   void AddActor2D(vtkProp* prop);
   void RemoveActor(vtkProp* prop);
+  void RemoveActor2D(vtkProp* prop);
 
   // Description:
   // Information key containing the Id of this layer. This Id set as a

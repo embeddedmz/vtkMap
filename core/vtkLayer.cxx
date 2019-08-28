@@ -120,6 +120,18 @@ void vtkLayer::RemoveActor(vtkProp* prop)
 }
 
 //----------------------------------------------------------------------------
+void vtkLayer::RemoveActor2D(vtkProp* prop)
+{
+  if (!this->Renderer || !prop)
+  {
+    vtkErrorMacro(<< "Could not remove vtkProp.");
+    return;
+  }
+
+  this->Renderer->RemoveActor2D(prop);
+}
+
+//----------------------------------------------------------------------------
 void vtkLayer::AddActor(vtkProp* prop)
 {
   if (!this->Renderer || !prop)
