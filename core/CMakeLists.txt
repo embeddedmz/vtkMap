@@ -21,6 +21,10 @@ set(vtkMapCore_SOURCE
     vtkPolydataFeature.cxx
     vtkRasterFeature.cxx
     vtkTeardropSource.cxx
+    vtkScalarBarFeature.cxx
+    vtkParaViewScalarBarFeature.cxx
+    vtkBoundingRectContextDevice2D.cxx
+    vtkContext2DScalarBarActor.cxx
     )
 
 set (vtkMapCore_HEADERS
@@ -45,6 +49,10 @@ set (vtkMapCore_HEADERS
     vtkPolydataFeature.h
     vtkRasterFeature.h
     vtkTeardropSource.h
+    vtkScalarBarFeature.h
+    vtkParaViewScalarBarFeature.h
+    vtkBoundingRectContextDevice2D.h
+    vtkContext2DScalarBarActor.h
     ${CMAKE_CURRENT_BINARY_DIR}/vtkmapcore_export.h
     )
 

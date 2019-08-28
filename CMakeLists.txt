@@ -59,6 +59,10 @@ set (VTK_REQUIRED_COMPONENTS
     vtkIOXML
     vtkImagingStatistics
     vtkInteractionImage
+# For ParaView Scalar bar
+    vtkRenderingContext2D
+    vtkRenderingContextOpenGL2
+    vtkChartsCore
 )
 
 if (BUILD_QT_APPS)

@@ -24,3 +24,9 @@ add_executable(markerSize
 target_link_libraries(markerSize
   vtkMapCore
   ${CURL_LIBRARIES})
+
+add_executable(scalarBarFeature
+  scalarBarFeature.cxx)
+target_link_libraries(scalarBarFeature
+  vtkMapCore
+  ${CURL_LIBRARIES})
