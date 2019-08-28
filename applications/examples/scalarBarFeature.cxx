@@ -43,7 +43,7 @@ public:
   {
     switch (event)
     {
-      case vtkInteractorStyleGeoMap::DisplayClickCompleteEvent:
+      /*case vtkInteractorStyleGeoMap::DisplayClickCompleteEvent:
       {
         double* latLonCoords = static_cast<double*>(data);
         std::cout << "Point coordinates: \n"
@@ -138,14 +138,33 @@ public:
         std::cout << "Right mouse click at (" << coords[0] << ", " << coords[1]
                   << ")" << std::endl;
       }
+      break;*/
+
+      case vtkCommand::KeyPressEvent:
+      {
+        if (this->Feature)
+        {
+          if (this->Feature->IsVisible())
+          {
+            this->Feature->SetVisibility(0);
+          }
+          else
+          {
+            this->Feature->SetVisibility(1);
+          }
+          this->Map->Draw();
+        }
+      }
       break;
     } // switch
   }
 
   void SetMap(vtkMap* map) { this->Map = map; }
+  void SetScalarBarFeature(vtkFeature* feat) { this->Feature = feat; }
 
 protected:
-  vtkMap* Map;
+  vtkMap* Map = nullptr;
+  vtkFeature* Feature = nullptr;
 };
 
 // ------------------------------------------------------------
@@ -257,6 +276,7 @@ int main(int argc, char* argv[])
   vtkNew<vtkRenderWindowInteractor> intr;
   intr->SetRenderWindow(wind.GetPointer());
   map->SetInteractor(intr.GetPointer());
+  intr->Initialize();
 
   vtkMapType::Interaction mode = vtkMapType::Interaction::Default;
   if (rubberBandDisplayOnly)
@@ -368,12 +388,14 @@ int main(int argc, char* argv[])
   map->AddLayer(featureLayer.GetPointer());
 
   // Scalar bar
+  vtkFeature* sbFeat = nullptr;
   if (scalarBarType == 0)
   {
       vtkNew<vtkScalarBarFeature> sb;
       sb->SetLookupTable(lut.GetPointer());
       sb->SetTitle("Altitude");
       featureLayer->AddFeature(sb.GetPointer());
+      sbFeat = sb.GetPointer();
   }
   else if (scalarBarType == 1)
   {
@@ -381,6 +403,7 @@ int main(int argc, char* argv[])
       sb->SetLookupTable(lut.GetPointer());
       sb->SetTitle("Altitude");
       featureLayer->AddFeature(sb.GetPointer());
+      sbFeat = sb.GetPointer();
   }
 
   // Path
@@ -396,11 +419,13 @@ int main(int argc, char* argv[])
   // Set callbacks
   vtkNew<PickCallback> pickCallback;
   pickCallback->SetMap(map.GetPointer());
+  pickCallback->SetScalarBarFeature(sbFeat);
   /*map->AddObserver(vtkInteractorStyleGeoMap::DisplayClickCompleteEvent, pickCallback.GetPointer());
   map->AddObserver(vtkInteractorStyleGeoMap::DisplayDrawCompleteEvent, pickCallback.GetPointer());
   map->AddObserver(vtkInteractorStyleGeoMap::SelectionCompleteEvent, pickCallback.GetPointer());
-  map->AddObserver(vtkInteractorStyleGeoMap::ZoomCompleteEvent, pickCallback.GetPointer());*/
-  map->AddObserver(vtkInteractorStyleGeoMap::RightButtonCompleteEvent, pickCallback.GetPointer());
+  map->AddObserver(vtkInteractorStyleGeoMap::ZoomCompleteEvent, pickCallback.GetPointer());
+  map->AddObserver(vtkInteractorStyleGeoMap::RightButtonCompleteEvent, pickCallback.GetPointer());*/
+  intr->AddObserver(vtkCommand::KeyPressEvent, pickCallback.GetPointer());
 
   intr->Start();
 
