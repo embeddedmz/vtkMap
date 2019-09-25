@@ -259,15 +259,35 @@ void vtkInteractorStyleGeoMap::OnMouseMove()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleGeoMap::OnMouseWheelForward()
 {
-  this->ZoomIn(1);
-  this->Superclass::OnMouseWheelForward();
+  if (this->Map->GetZoom() >= 19)
+  {
+    this->Map->IncreaseLevel19Zoom(1);
+
+    this->Superclass::OnMouseWheelForward();
+
+    // Redraw the map
+    this->Map->Draw();
+  }
+  else
+  {
+    this->ZoomIn(1);
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleGeoMap::OnMouseWheelBackward()
 {
-  this->ZoomOut(1);
-  this->Superclass::OnMouseWheelBackward();
+  const int level19Zoom = this->Map->GetLevel19Zoom();
+  if (level19Zoom > 0)
+  {
+    this->Map->DecreaseLevel19Zoom(1);
+    this->Superclass::OnMouseWheelBackward();
+    this->Map->Draw();
+  }
+  else
+  {
+    this->ZoomOut(1);
+  }
 }
 
 //-----------------------------------------------------------------------------

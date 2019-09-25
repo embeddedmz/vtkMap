@@ -109,6 +109,19 @@ public:
   // Get/Set the detailing level
   vtkGetMacro(Zoom, int) vtkSetClampMacro(Zoom, int, 0, 19)
 
+  inline int GetLevel19Zoom()
+  {
+    return this->ZoomLevel19;
+  }
+  inline void IncreaseLevel19Zoom(const int amount)
+  {
+    this->ZoomLevel19 += amount;
+  }
+  inline void DecreaseLevel19Zoom(const int amount)
+  {
+    this->ZoomLevel19 -= amount;
+  }
+
     // Description:
     // Get/Set center of the map.
     void GetCenter(double (&latlngPoint)[2]);
@@ -226,6 +239,7 @@ protected:
   // Description:
   // Set Zoom level, which determines the level of detailing
   int Zoom;
+  int ZoomLevel19;
 
   // Description:
   // Center of the map

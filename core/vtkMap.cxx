@@ -115,6 +115,7 @@ vtkMap::vtkMap()
 
   this->PerspectiveProjection = false;
   this->Zoom = 1;
+  this->ZoomLevel19 = 0;
   this->Center[0] = this->Center[1] = 0.0;
   this->Initialized = false;
   this->BaseLayer = NULL;
@@ -452,20 +453,25 @@ void vtkMap::Update()
   }
   else
   {
-    vtkCamera* camera = this->Renderer->GetActiveCamera();
-    camera->ParallelProjectionOn();
+    if (this->Zoom != 19 || (this->Zoom == 19 && this->ZoomLevel19 <= 0))
+    {
+      this->ZoomLevel19 = 0;
 
-    // Camera parallel scale == 1/2 the viewport height in world coords.
-    // Each tile is 360 / 2**zoom in world coords
-    // Each tile is 256 (pixels) in display coords
-    int* renSize = this->Renderer->GetSize();
-    //std::cout << "renSize " << renSize[0] << ", " << renSize[1] << std::endl;
-    int zoomLevelFactor = 1 << this->Zoom;
-    const double displayScaling = 1.0 / this->DevicePixelRatio;
-    double parallelScale =
-      displayScaling * 0.5 * (renSize[1] * 360.0 / zoomLevelFactor) / 256.0;
-    //std::cout << "SetParallelScale " << parallelScale << std::endl;
-    camera->SetParallelScale(parallelScale);
+      vtkCamera* camera = this->Renderer->GetActiveCamera();
+      camera->ParallelProjectionOn();
+
+      // Camera parallel scale == 1/2 the viewport height in world coords.
+      // Each tile is 360 / 2**zoom in world coords
+      // Each tile is 256 (pixels) in display coords
+      int* renSize = this->Renderer->GetSize();
+      //std::cout << "renSize " << renSize[0] << ", " << renSize[1] << std::endl;
+      int zoomLevelFactor = 1 << this->Zoom;
+      const double displayScaling = 1.0 / this->DevicePixelRatio;
+      double parallelScale =
+        displayScaling * 0.5 * (renSize[1] * 360.0 / zoomLevelFactor) / 256.0;
+      //std::cout << "SetParallelScale " << parallelScale << std::endl;
+      camera->SetParallelScale(parallelScale);
+    }
   }
 
   // Update the base layer first
