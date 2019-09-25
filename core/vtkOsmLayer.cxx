@@ -570,6 +570,9 @@ void vtkOsmLayer::RenderTiles(std::vector<vtkSmartPointer<vtkMapTile> >& tiles)
     {
       this->AddActor(tiles[i]->GetActor());
 
+      (this->Visibility) ? tiles[i]->GetActor()->SetVisibility(1) :
+                           tiles[i]->GetActor()->SetVisibility(0);
+
       // add tiles put on the scene in the proper cache
       CachedTiles.push_back(tiles[i]);
     }
