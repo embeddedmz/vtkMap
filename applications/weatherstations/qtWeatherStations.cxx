@@ -49,6 +49,7 @@ namespace
 // Writes input buffer to stream (last argument)
 size_t handle_curl_input(void* buffer, size_t size, size_t nmemb, void* stream)
 {
+  (void) size;
   //std::cout << "handle_input() nmemb: " << nmemb << std::endl
   //std::cout << static_cast<char *>(buffer) << std::endl;
   std::stringstream* ss = static_cast<std::stringstream*>(stream);
@@ -68,8 +69,9 @@ public:
   {
   }
 
-  virtual void Execute(vtkObject* caller, unsigned long eventId, void* data)
+  void Execute(vtkObject* caller, unsigned long eventId, void* data) override
   {
+    (void) caller;
     switch (eventId)
     {
       case vtkInteractorStyleGeoMap::SelectionCompleteEvent:
@@ -160,7 +162,7 @@ qtWeatherStations::qtWeatherStations(QWidget* parent, const MapTileProvider prov
   //this->resetMapCoords();
   //this->Map->SetCenter(32.2, -90.9);  // approx ERDC coords
   double centerLatLon[2] = { 42.849604, -73.758345 }; // KHQ coords
-  double zoom = 5;
+  int zoom = 5;
   this->Map->SetCenter(centerLatLon);
   this->Map->SetZoom(zoom);
   this->UI->MapCoordinatesWidget->setCoordinates(centerLatLon, zoom);
@@ -228,6 +230,8 @@ qtWeatherStations::~qtWeatherStations()
   {
     this->InteractorCallback->Delete();
   }
+
+  delete this->UI;
 }
 
 // ------------------------------------------------------------
@@ -267,6 +271,17 @@ void qtWeatherStations::showStations()
   this->UI->StationText->setText("Retrieving station data.");
   // Todo is there any way to update StationText (QTextEdit) *now* ???
 
+  // remove old markers
+  // testing DeleteMarker
+  for (const auto& id : StationMap)
+  {
+    if (!this->MapMarkers->DeleteMarker(id.first))
+    {
+      std::cout << "Error: unable to delete marker "
+                << id.first << std::endl;
+    }
+  }
+  //this->MapMarkers->DeleteAllMarkers();
   this->StationMap.clear();
 
   // Request weather station data
@@ -338,10 +353,10 @@ Json::Value qtWeatherStations::RequestStationData()
   // Construct openweathermaps request
   int count = this->UI->StationCountSpinBox->value();
   const char* appId = "14cdc51cab181f8848f43497c58f1a96";
-  const char* format = "http://api.openweathermap.org/data/2.5/find"
-                       "?lat=%f&lon=%f&cnt=%d&units=imperial&APPID=%s";
   char url[256];
-  sprintf(url, format, lat, lon, count, appId);
+  snprintf(url, 256, "http://api.openweathermap.org/data/2.5/find"
+           "?lat=%f&lon=%f&cnt=%d&units=imperial&APPID=%s",
+           lat, lon, count, appId);
   std::cout << "url " << url << std::endl;
 
   // Initialize curl & send request
@@ -356,13 +371,13 @@ Json::Value qtWeatherStations::RequestStationData()
   //curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
   //std::cout << "Start request" << std::endl;
   // Use blocking IO for now
-  CURLcode res = curl_easy_perform(curl);
+  curl_easy_perform(curl);
   //std::cout << "Request end, return value " << res << std::endl;
   curl_easy_cleanup(curl);
 
   // Parse input string (json)
   curlStream.seekp(0L);
-  std::string curlData = curlStream.str();
+  //std::string curlData = curlStream.str();
   //std::cout << curlData << std::endl;
 
   Json::Reader reader;
@@ -391,7 +406,7 @@ std::vector<StationReport> qtWeatherStations::ParseStationData(Json::Value json)
     return stationList;
   }
 
-  for (int i = 0; i < stationListNode.size(); ++i)
+  for (int i = 0; i < int(stationListNode.size()); ++i)
   {
     StationReport station;
 
@@ -432,7 +447,7 @@ void qtWeatherStations::DisplayStationData(
   std::vector<StationReport> stationList)
 {
   std::stringstream ss;
-  for (int i = 0; i < stationList.size(); ++i)
+  for (size_t i = 0; i < stationList.size(); ++i)
   {
     StationReport station = stationList[i];
     ss << std::setw(3) << i + 1 << ". " << station.id << "  " << std::setw(20)
@@ -459,7 +474,7 @@ void qtWeatherStations::DisplayStationMarkers(
   std::vector<StationReport> stationList)
 {
   // Create map markers for each station
-  for (int i = 0; i < stationList.size(); ++i)
+  for (size_t i = 0; i < stationList.size(); ++i)
   {
     StationReport station = stationList[i];
     vtkIdType id =

@@ -103,7 +103,7 @@ public:
 
 protected:
   vtkLayer();
-  virtual ~vtkLayer();
+  ~vtkLayer() override;
 
   double Opacity;
   int Visibility;
