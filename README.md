@@ -13,3 +13,5 @@ Additional dependencies
 Some extensions and applications might require:
 * GDAL
 * Qt5
+
+![vtkMap in action in a C++/Qt application](https://mmzoughi.files.wordpress.com/2020/01/vtkmap.png?w=840)
