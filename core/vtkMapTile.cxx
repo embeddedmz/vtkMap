@@ -40,6 +40,7 @@ vtkStandardNewMacro(vtkMapTile)
   Mapper = nullptr;
   this->Corners[0] = this->Corners[1] = this->Corners[2] = this->Corners[3] =
     0.0;
+  LastUpdateTime = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -147,4 +148,5 @@ void vtkMapTile::Update()
 {
   this->Actor->SetVisibility(this->IsVisible());
   this->UpdateTime.Modified();
+  time(&this->LastUpdateTime);
 }

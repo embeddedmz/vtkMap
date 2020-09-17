@@ -42,6 +42,8 @@ vtkStandardNewMacro(vtkOsmLayer)
   this->MapTileExtension = "png";
   this->MapTileAttribution = "(c) OpenStreetMap contributors";
   this->AttributionActor = nullptr;
+  this->KeepTilesInCachePeriod = 0;
+  this->LastUpdateTime = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -164,9 +166,11 @@ void vtkOsmLayer::Update()
     this->AddActor2D(this->AttributionActor);
   }
 
+  this->CleanTilesCache();
   this->AddTiles();
 
-  this->Superclass::Update(); // redundant isn't it ????
+  this->Superclass::Update();
+  time(&this->LastUpdateTime); // needed to clean tiles cache
 }
 
 //----------------------------------------------------------------------------
@@ -221,6 +225,62 @@ void vtkOsmLayer::AddTiles()
     this->InitializeTiles(tiles, tileSpecs);
   }
   this->RenderTiles(tiles);
+}
+
+//----------------------------------------------------------------------------
+void vtkOsmLayer::CleanTilesCache()
+{
+  if (this->KeepTilesInCachePeriod == 0 || this->LastUpdateTime == 0)
+  {
+    return;
+  }
+
+  auto itrZ = this->CachedTilesMap.begin();
+  while (itrZ != this->CachedTilesMap.end())
+  {
+    auto itrX = itrZ->second.begin(); // itrX->second is std::map<int, vtkSmartPointer<vtkMapTile>>
+    while (itrX != itrZ->second.end())
+    {
+      auto itrY = itrX->second.begin(); // itrY->second is vtkSmartPointer<vtkMapTile>
+      while (itrY != itrX->second.end())
+      {
+        if (itrY->second)
+        {
+          const auto periodDifference = this->LastUpdateTime - itrY->second->GetLastUpdateTime();
+          if (periodDifference > this->KeepTilesInCachePeriod)
+          {
+            itrY = itrX->second.erase(itrY);
+          }
+          else
+          {
+            ++itrY;
+          }
+        }
+        else
+        {
+          ++itrY;
+        }
+      }
+
+      if (itrX->second.empty())
+      {
+        itrX = itrZ->second.erase(itrX);
+      }
+      else
+      {
+        ++itrX;
+      }
+    }
+
+    if (itrZ->second.empty())
+    {
+      itrZ = this->CachedTilesMap.erase(itrZ);
+    }
+    else
+    {
+      ++itrZ;
+    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -464,6 +524,7 @@ void vtkOsmLayer::SelectTiles(std::vector<vtkSmartPointer<vtkMapTile> >& tiles,
       {
         tiles.push_back(tile);
         tile->VisibilityOn();
+        tile->Update();
       }
       else
       {
@@ -543,6 +604,7 @@ void vtkOsmLayer::InitializeTiles(
     // Initialize tile
     tile->VisibilityOn();
     tile->Init();
+    tile->Update();
   } // for
 
   //tileSpecs.clear(); // it's not this method job to clear it :)

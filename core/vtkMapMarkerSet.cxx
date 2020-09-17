@@ -984,7 +984,7 @@ void vtkMapMarkerSet::OnRenderStart()
 {
   if (!this->Layer)
   {
-    vtkErrorMacro(<< "Invalid Layer!") return;
+    vtkErrorMacro(<< "Invalid Layer!"); return;
   }
 
   auto rend = this->Layer->GetRenderer();

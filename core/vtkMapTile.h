@@ -21,6 +21,8 @@
 #include "vtkFeature.h"
 #include "vtkmapcore_export.h"
 
+#include <ctime>
+
 class vtkStdString;
 class vtkPlaneSource;
 class vtkActor;
@@ -75,6 +77,8 @@ public:
   // Update the map tile
   void Update() override;
 
+  vtkGetMacro(LastUpdateTime, time_t)
+
 protected:
   vtkMapTile();
   ~vtkMapTile();
@@ -94,6 +98,8 @@ protected:
   vtkPolyDataMapper* Mapper;
 
   double Corners[4];
+
+  time_t LastUpdateTime;
 
 private:
   vtkMapTile(const vtkMapTile&);            // Not implemented

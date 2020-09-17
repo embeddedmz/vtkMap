@@ -27,6 +27,7 @@
 #include <vtkObject.h>
 #include <vtkRenderer.h>
 
+#include <ctime>
 #include <map>
 #include <sstream>
 #include <vector>
@@ -62,11 +63,19 @@ public:
   // The argument is *relative* to vtkMap::StorageDirectory.
   void SetCacheSubDirectory(const char* relativePath);
 
+  // Description:
+  // Period in seconds between the last map update and tile usage
+  // during which a tile can stay cached in CachedTilesMap
+  // Default value is 0 (keep all created tiles in memory).
+  vtkSetMacro(KeepTilesInCachePeriod, unsigned int)
+  vtkGetMacro(KeepTilesInCachePeriod, unsigned int)
+
 protected:
   vtkOsmLayer();
   ~vtkOsmLayer() override;
 
     virtual void AddTiles();
+    virtual void CleanTilesCache();
   bool DownloadImageFile(std::string url, std::string filename);
   bool VerifyImageFile(FILE* fp, const std::string& filename);
   void RemoveTiles();
@@ -101,6 +110,9 @@ protected:
     CachedTilesMap;
   // CachedTiles is intended to retrieve tiles put on the scene
   std::vector<vtkSmartPointer<vtkMapTile> > CachedTiles;
+  unsigned int KeepTilesInCachePeriod;
+
+  time_t LastUpdateTime;
 
 private:
   vtkOsmLayer(const vtkOsmLayer&);            // Not implemented
